@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
-from .sec_key import KEY
+from .sec_key import KEY, HOST_USER, HOST_PASSWORD, GITHUB_ID, GITHUB_KEY
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,6 +33,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
+    'social_django',
     'users',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -64,6 +66,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect'
             ],
         },
     },
@@ -124,5 +128,16 @@ STATIC_URL = '/static/'
 LOGOUT_REDIRECT_URL = "dashboard"
 LOGIN_REDIRECT_URL = "dashboard"
 
-EMAIL_HOST = "localhost"
-EMAIL_PORT = 1025
+EMAIL_HOST = "smtp.mailgun.org"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER") or HOST_USER
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD") or HOST_PASSWORD
+EMAIL_USE_TLS = True
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "social_core.backends.github.GithubOAuth2",
+]
+
+SOCIAL_AUTH_GITHUB_KEY = os.environ.get("SOCIAL_AUTH_GITHUB_KEY") or GITHUB_ID
+SOCIAL_AUTH_GITHUB_SECRET = os.environ.get("SOCIAL_AUTH_GITHUB_SECRET") or GITHUB_KEY
